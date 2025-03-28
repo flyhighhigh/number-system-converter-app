@@ -234,6 +234,7 @@ export default function NumberSystemConverter() {
       setBinary("")
       setDecimal("")
       setHexadecimal("")
+      console.log(e)
     }
   }
 
