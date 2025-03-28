@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Copy, Trash2, Sun, Moon, Check, Globe, AlertCircle } from 'lucide-react'
+import { Copy, Trash2, Sun, Moon, Check, Globe, AlertCircle, LanguagesIcon } from 'lucide-react'
 
 export default function NumberSystemConverter() {
   const [binary, setBinary] = useState("")
@@ -14,7 +14,9 @@ export default function NumberSystemConverter() {
   const [customBase, setCustomBase] = useState("")
   const [baseValue, setBaseValue] = useState("8")
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [darkModeRotation, setDarkModeRotation] = useState(0);
   const [isChineseMode, setIsChineseMode] = useState(false)
+  const [chineseModeRotation, setChineseModeRotation] = useState(0);
   const [notification, setNotification] = useState({ show: false, message: "" })
   const [errors, setErrors] = useState({
     binary: false,
@@ -330,18 +332,36 @@ export default function NumberSystemConverter() {
           <Button 
             variant="outline" 
             size="icon"
-            onClick={() => setIsChineseMode(!isChineseMode)}
+            
+            onClick={() => {
+              setIsChineseMode(!isChineseMode)
+              setChineseModeRotation(chineseModeRotation == 0 ? 360 : 0)
+            }}
             title={isChineseMode ? "Switch to English" : "切換到中文"}
           >
-            <Globe className="h-5 w-5" />
+            <span
+              className="transition-transform duration-500 ease-out"
+              style={{ transform: `rotate(${chineseModeRotation}deg)` }}
+            >
+              <LanguagesIcon className="h-5 w-5" />
+            </span>
+            
           </Button>
           <Button 
             variant="outline" 
             size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={() => {
+              setIsDarkMode(!isDarkMode)
+              setDarkModeRotation(darkModeRotation == 0 ? -360 : 0)
+            }}
             title={isChineseMode ? "切換暗/亮模式" : "Toggle dark/light mode"}
           >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <span
+              className="transition-transform duration-500 ease-out"
+              style={{ transform: `rotate(${darkModeRotation}deg)` }}
+            >
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </span>
           </Button>
         </div>
       </div>
