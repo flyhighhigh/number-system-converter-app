@@ -340,7 +340,7 @@ export default function NumberSystemConverter() {
             title={isChineseMode ? "Switch to English" : "切換到中文"}
           >
             <span
-              className="transition-transform duration-500 ease-out"
+              className="transition-transform duration-1000 ease-out"
               style={{ transform: `rotate(${chineseModeRotation}deg)` }}
             >
               <LanguagesIcon className="h-5 w-5" />
@@ -357,7 +357,7 @@ export default function NumberSystemConverter() {
             title={isChineseMode ? "切換暗/亮模式" : "Toggle dark/light mode"}
           >
             <span
-              className="transition-transform duration-500 ease-out"
+              className="transition-transform duration-1000 ease-out"
               style={{ transform: `rotate(${darkModeRotation}deg)` }}
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
