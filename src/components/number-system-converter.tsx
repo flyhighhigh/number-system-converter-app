@@ -8,11 +8,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Copy, Trash2, Sun, Moon, Check, AlertCircle, LanguagesIcon } from 'lucide-react'
 
 export default function NumberSystemConverter() {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   const [binary, setBinary] = useState("")
   const [decimal, setDecimal] = useState("")
   const [hexadecimal, setHexadecimal] = useState("")
-  const [customBase, setCustomBase] = useState("")
-  const [baseValue, setBaseValue] = useState("8")
+  const [customValue, setCustomValue] = useState("")
+  const [customBase, setCustomBase] = useState("8")
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [darkModeRotation, setDarkModeRotation] = useState(0);
   const [isChineseMode, setIsChineseMode] = useState(false)
@@ -22,6 +23,7 @@ export default function NumberSystemConverter() {
     binary: false,
     decimal: false,
     hexadecimal: false,
+    customValue: false,
     customBase: false
   })
 
@@ -32,34 +34,36 @@ export default function NumberSystemConverter() {
       binary: "Binary",
       decimal: "Decimal",
       hexadecimal: "Hexadecimal",
-      customBase: "Custom Base",
+      customValue: "Custom Base",
       enterBinary: "Enter binary number",
       enterDecimal: "Enter decimal number",
       enterHexadecimal: "Enter hexadecimal number",
-      enterCustomBase: (base: string) => `Enter base-${base} number`,
+      enterCustomValue: (base: string) => `Enter base-${base} number`,
       clearAll: "Clear All",
       copied: (label: string) => `${label} copied to clipboard`,
       invalidBinary: "Invalid binary input (use only 0 and 1)",
       invalidDecimal: "Invalid decimal input (use only 0-9)",
       invalidHexadecimal: "Invalid hexadecimal input (use only 0-9, A-F)",
-      invalidCustomBase: (base: string) => `Invalid base-${base} input`
+      invalidCustomBase: (base: string) => `Invalid base-${base} input`,
+      invalidBase: `Invalid Base (only 2~36)`
     },
     zh: {
       title: "數字進位轉換器",
       binary: "二進位",
       decimal: "十進位",
       hexadecimal: "十六進位",
-      customBase: "自定義進位",
+      customValue: "自定義進位",
       enterBinary: "輸入二進位數字",
       enterDecimal: "輸入十進位數字",
       enterHexadecimal: "輸入十六進位數字",
-      enterCustomBase: (base: string) => `輸入${base}進位數字`,
+      enterCustomValue: (base: string) => `輸入${base}進位數字`,
       clearAll: "清除全部",
       copied: (label: string) => `${label}已複製到剪貼板`,
       invalidBinary: "無效的二進位輸入 (僅使用 0 和 1)",
       invalidDecimal: "無效的十進位輸入 (僅使用 0-9)",
       invalidHexadecimal: "無效的十六進位輸入 (僅使用 0-9, A-F)",
-      invalidCustomBase: (base: string) => `無效的${base}進位輸入`
+      invalidCustomBase: (base: string) => `無效的${base}進位輸入`,
+      invalidBase: `無效的進位 (2~36)`
     }
   }
 
@@ -82,7 +86,7 @@ export default function NumberSystemConverter() {
       // Empty input is valid, just clear other fields
       setBinary("")
       setHexadecimal("")
-      setCustomBase("")
+      setCustomValue("")
       setErrors({...errors, decimal: false})
       return
     }
@@ -94,7 +98,7 @@ export default function NumberSystemConverter() {
       setErrors({...errors, decimal: true})
       setBinary("")
       setHexadecimal("")
-      setCustomBase("")
+      setCustomValue("")
       return
     }
     
@@ -105,9 +109,9 @@ export default function NumberSystemConverter() {
     setHexadecimal(dec.toString(16).toUpperCase())
     
     // Convert to custom base if valid
-    const base = parseInt(baseValue)
+    const base = parseInt(customBase)
     if (base >= 2 && base <= 36) {
-      setCustomBase(dec.toString(base).toUpperCase())
+      setCustomValue(dec.toString(base).toUpperCase())
     }
   }
 
@@ -118,7 +122,7 @@ export default function NumberSystemConverter() {
       // Empty input is valid, just clear other fields
       setDecimal("")
       setHexadecimal("")
-      setCustomBase("")
+      setCustomValue("")
       setErrors({...errors, binary: false})
       return
     }
@@ -130,7 +134,7 @@ export default function NumberSystemConverter() {
       setErrors({...errors, binary: true})
       setDecimal("")
       setHexadecimal("")
-      setCustomBase("")
+      setCustomValue("")
       return
     }
     
@@ -141,9 +145,9 @@ export default function NumberSystemConverter() {
     setHexadecimal(dec.toString(16).toUpperCase())
     
     // Convert to custom base if valid
-    const base = parseInt(baseValue)
+    const base = parseInt(customBase)
     if (base >= 2 && base <= 36) {
-      setCustomBase(dec.toString(base).toUpperCase())
+      setCustomValue(dec.toString(base).toUpperCase())
     }
   }
 
@@ -154,7 +158,7 @@ export default function NumberSystemConverter() {
       // Empty input is valid, just clear other fields
       setBinary("")
       setDecimal("")
-      setCustomBase("")
+      setCustomValue("")
       setErrors({...errors, hexadecimal: false})
       return
     }
@@ -166,7 +170,7 @@ export default function NumberSystemConverter() {
       setErrors({...errors, hexadecimal: true})
       setBinary("")
       setDecimal("")
-      setCustomBase("")
+      setCustomValue("")
       return
     }
     
@@ -177,15 +181,30 @@ export default function NumberSystemConverter() {
     setDecimal(dec.toString())
     
     // Convert to custom base if valid
-    const base = parseInt(baseValue)
+    const base = parseInt(customBase)
     if (base >= 2 && base <= 36) {
-      setCustomBase(dec.toString(base).toUpperCase())
+      setCustomValue(dec.toString(base).toUpperCase())
+    }
+  }
+
+  // Check if the string is not empty and is a valid integer
+  function getBaseInteger(str: string) {
+    const num = parseInt(str);
+    if (!isNaN(num) && num.toString() === str) {
+      return num;
+    } else {
+      return -1;
     }
   }
 
   // Validate and convert from custom base to all other bases
   const convertFromCustomBase = (customValue: string, base: string) => {
-    const baseInt = parseInt(base)
+    const baseInt = getBaseInteger(base)
+    // Check base value is valid
+    if (baseInt > 36 || baseInt < 2) {
+      setErrors({...errors, customBase: true, customValue: false})
+      return
+    }
     
     // Check if input is empty
     if (!customValue) {
@@ -193,38 +212,26 @@ export default function NumberSystemConverter() {
       setBinary("")
       setDecimal("")
       setHexadecimal("")
-      setErrors({...errors, customBase: false})
+      setErrors({...errors, customBase: false, customValue: false})
       return
     }
     
-    // Check if base is valid
-    if (baseInt < 2 || baseInt > 36) {
-      return
-    }
-    
-    // Create a regex pattern based on the base
-    let pattern = '^[0-9'
-    if (baseInt > 10) {
-      // Add A-Z characters as needed for the base
-      const lastChar = String.fromCharCode(65 + (baseInt - 11))
-      pattern += `A-${lastChar}a-${lastChar.toLowerCase()}`
-    }
-    pattern += ']+$'
-    
-    const regex = new RegExp(pattern)
-    const isValid = regex.test(customValue)
-    
-    if (!isValid) {
-      // Invalid custom base input
-      setErrors({...errors, customBase: true})
+    // Check if value is valid
+    // 檢查 customValue 中的每個字元是否都在 validChars 中
+    const valueValid = [...customValue].every(char => {
+      const index = chars.indexOf(char);
+      return index >= 0 && index < baseInt;  // 確保字符的索引在有效範圍內
+    });
+    if (!valueValid) {
       setBinary("")
       setDecimal("")
       setHexadecimal("")
+      setErrors({...errors, customBase: false, customValue: true})
       return
     }
     
     // Valid input, clear error and convert
-    setErrors({...errors, customBase: false})
+    setErrors({...errors, customBase: false, customValue: false})
     try {
       const dec = parseInt(customValue, baseInt)
       setBinary(dec.toString(2))
@@ -232,20 +239,14 @@ export default function NumberSystemConverter() {
       setHexadecimal(dec.toString(16).toUpperCase())
     } catch (e) {
       // Handle parsing errors
-      setErrors({...errors, customBase: true})
+      setErrors({...errors, customBase: false, customValue: true})
       setBinary("")
       setDecimal("")
       setHexadecimal("")
       console.log(e)
     }
   }
-
-  // Handle base value change
-  useEffect(() => {
-    if (customBase && !errors.customBase) {
-      convertFromCustomBase(customBase, baseValue)
-    }
-  }, [baseValue])
+  
 
   // Copy text to clipboard
   const copyToClipboard = (text: string, label: string) => {
@@ -254,7 +255,7 @@ export default function NumberSystemConverter() {
         (label === "Binary" ? "二進制" : 
          label === "Decimal" ? "十進制" : 
          label === "Hexadecimal" ? "十六進制" : 
-         `${baseValue}進制`) : label;
+         `${customBase}進制`) : label;
       
       setNotification({ show: true, message: t.copied(translatedLabel) })
       
@@ -270,11 +271,12 @@ export default function NumberSystemConverter() {
     setBinary("")
     setDecimal("")
     setHexadecimal("")
-    setCustomBase("")
+    setCustomValue("")
     setErrors({
       binary: false,
       decimal: false,
       hexadecimal: false,
+      customValue: false,
       customBase: false
     })
   }
@@ -296,8 +298,8 @@ export default function NumberSystemConverter() {
     if (errors.hexadecimal && hexadecimal) {
       convertFromHexadecimal(hexadecimal)
     }
-    if (errors.customBase && customBase) {
-      convertFromCustomBase(customBase, baseValue)
+    if (errors.customValue && customValue) {
+      convertFromCustomBase(customValue, customBase)
     }
   }, [isChineseMode])
 
@@ -482,36 +484,50 @@ export default function NumberSystemConverter() {
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Label 
-                htmlFor="customBase" 
-                className={`dark:text-gray-200 ${errors.customBase ? 'text-red-500 dark:text-red-400' : ''}`}
+                htmlFor="customValue" 
+                className={`dark:text-gray-200 ${errors.customValue || errors.customBase ? 'text-red-500 dark:text-red-400' : ''}`}
               >
-                {t.customBase}
+                {t.customValue}
               </Label>
               <Input
-                id="baseValue"
+                id="customBase"
                 type="number"
                 min="2"
                 max="36"
-                value={baseValue}
-                onChange={(e) => setBaseValue(e.target.value)}
-                className="w-20 mono-font"
+                value={customBase}
+                onChange={(e) => {
+                  setCustomBase(e.target.value)
+                  convertFromCustomBase(customValue, e.target.value)
+                }}
+                className={`w-20 mono-font ${
+                  errors.customBase ? 'border-red-500 dark:border-red-400' : ''
+                }`}
               />
+              {errors.customBase && (
+                <Label 
+                  htmlFor="invalidBase" 
+                  className={`dark:text-gray-200 ${errors.customBase ? 'text-red-500 dark:text-red-400' : ''}`}
+                >
+                  {t.invalidBase}
+                </Label>
+              )}
+
             </div>
             <div className="flex space-x-2">
               <div className="relative flex-1">
                 <Input
-                  id="customBase"
-                  placeholder={t.enterCustomBase(baseValue)}
-                  value={customBase}
+                  id="customValue"
+                  placeholder={t.enterCustomValue(customBase)}
+                  value={customValue}
                   onChange={(e) => {
-                    setCustomBase(e.target.value)
-                    convertFromCustomBase(e.target.value, baseValue)
+                    setCustomValue(e.target.value)
+                    convertFromCustomBase(e.target.value, customBase)
                   }}
                   className={`mono-font ${
-                    errors.customBase ? 'border-red-500 dark:border-red-400' : ''
+                    errors.customValue ? 'border-red-500 dark:border-red-400' : ''
                   }`}
                 />
-                {errors.customBase && (
+                {errors.customValue && (
                   <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
                   </div>
@@ -520,9 +536,9 @@ export default function NumberSystemConverter() {
               <Button 
                 variant="outline" 
                 size="icon"
-                onClick={() => copyToClipboard(customBase, `Base-${baseValue}`)}
+                onClick={() => copyToClipboard(customValue, `Base-${customBase}`)}
                 className="dark:hover:bg-gray-700"
-                disabled={errors.customBase}
+                disabled={errors.customValue}
               >
                 <Copy className="h-4 w-4" />
               </Button>
