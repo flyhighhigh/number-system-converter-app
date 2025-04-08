@@ -252,10 +252,10 @@ export default function NumberSystemConverter() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(() => {
       const translatedLabel = isChineseMode ? 
-        (label === "Binary" ? "二進制" : 
-         label === "Decimal" ? "十進制" : 
-         label === "Hexadecimal" ? "十六進制" : 
-         `${customBase}進制`) : label;
+        (label === "Binary" ? "二進位" : 
+         label === "Decimal" ? "十進位" : 
+         label === "Hexadecimal" ? "十六進位" : 
+         `${customBase}進位`) : label;
       
       setNotification({ show: true, message: t.copied(translatedLabel) })
       
